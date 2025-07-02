@@ -28,7 +28,7 @@ class GoogleCalendarService:
             raise Exception("Invalid JSON in GOOGLE_SERVICE_ACCOUNT_JSON")
 
     def get_calendar_id(self) -> str:
-        return "primary"
+        return "shaivas.hem@gmail.com"
 
     def check_availability(self, start_time: datetime, end_time: datetime) -> bool:
         try:
