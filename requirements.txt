@@ -8,7 +8,7 @@ langgraph==0.0.35
 langchain==0.1.16
 langchain-google-genai==1.0.1
 python-dotenv==1.0.0
-pydantic==2.5.0
+pydantic==2.6.4
 python-multipart==0.0.6
 httpx==0.25.2
 datetime
