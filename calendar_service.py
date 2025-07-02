@@ -16,10 +16,14 @@ class GoogleCalendarService:
         """Build and return Google Calendar service object"""
         SCOPES = ['https://www.googleapis.com/auth/calendar']
         
-        credentials = service_account.Credentials.from_service_account_file(
-            self.credentials_path, scopes=SCOPES
-        )
-        
+        import json
+
+        credentials_info = json.loads(os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON"))
+        credentials = service_account.Credentials.from_service_account_info(
+            credentials_info,
+            scopes=["https://www.googleapis.com/auth/calendar"]
+)
+
         return build('calendar', 'v3', credentials=credentials)
     
     def get_calendar_id(self) -> str:
