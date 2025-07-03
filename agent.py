@@ -4,6 +4,7 @@ import json
 import re
 from typing import Dict, List, Optional, Any
 import logging
+import dateparser
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -128,79 +129,20 @@ class CalendarBookingAgent:
         
         return info
     
+    
+
     def _extract_datetime(self, message: str) -> Optional[datetime]:
-        """Extract datetime from natural language"""
-        now = datetime.now()
-        message_lower = message.lower()
-        
-        # Handle relative dates
-        if 'tomorrow' in message_lower:
-            base_date = now + timedelta(days=1)
-        elif 'today' in message_lower:
-            base_date = now
-        elif 'next week' in message_lower:
-            base_date = now + timedelta(weeks=1)
-        elif 'monday' in message_lower:
-            days_ahead = 0 - now.weekday()
-            if days_ahead <= 0:
-                days_ahead += 7
-            base_date = now + timedelta(days_ahead)
-        elif 'tuesday' in message_lower:
-            days_ahead = 1 - now.weekday()
-            if days_ahead <= 0:
-                days_ahead += 7
-            base_date = now + timedelta(days_ahead)
-        elif 'wednesday' in message_lower:
-            days_ahead = 2 - now.weekday()
-            if days_ahead <= 0:
-                days_ahead += 7
-            base_date = now + timedelta(days_ahead)
-        elif 'thursday' in message_lower:
-            days_ahead = 3 - now.weekday()
-            if days_ahead <= 0:
-                days_ahead += 7
-            base_date = now + timedelta(days_ahead)
-        elif 'friday' in message_lower:
-            days_ahead = 4 - now.weekday()
-            if days_ahead <= 0:
-                days_ahead += 7
-            base_date = now + timedelta(days_ahead)
-        else:
-            base_date = now
-        
-        # Extract time
-        time_patterns = [
-            r'(\d{1,2}):(\d{2})\s*(am|pm)',
-            r'(\d{1,2})\s*(am|pm)',
-            r'at\s*(\d{1,2})',
-        ]
-        
-        for pattern in time_patterns:
-            match = re.search(pattern, message_lower)
-            if match:
-                try:
-                    groups = match.groups()
-                    if len(groups) >= 2 and groups[1] in ['am', 'pm']:
-                        hour = int(groups[0])
-                        minute = int(groups[1]) if len(groups) > 2 and groups[1].isdigit() else 0
-                        if groups[-1] == 'pm' and hour != 12:
-                            hour += 12
-                        elif groups[-1] == 'am' and hour == 12:
-                            hour = 0
-                    else:
-                        hour = int(groups[0])
-                        minute = 0
-                        # Assume PM for business hours if not specified
-                        if 8 <= hour <= 12:
-                            pass  # Could be AM
-                        elif 1 <= hour <= 7:
-                            hour += 12  # Likely PM
-                    
-                    return base_date.replace(hour=hour, minute=minute, second=0, microsecond=0)
-                except (ValueError, IndexError):
-                    continue
-        
-        return None
+        """Parse natural language to datetime using dateparser."""
+        try:
+            parsed = dateparser.parse(
+                message,
+                settings={'PREFER_DATES_FROM': 'future', 'RETURN_AS_TIMEZONE_AWARE': False}
+            )
+            return parsed  # Can be None if unparseable
+        except Exception as e:
+            print(f"❌ Error parsing datetime: {e}")
+            return None
+
     
     def _extract_duration(self, message: str) -> int:
         """Extract meeting duration in minutes"""
