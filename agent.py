@@ -272,10 +272,6 @@ class CalendarBookingAgent:
             start_time = extracted_info["datetime"]
             end_time = start_time + timedelta(minutes=extracted_info["duration"])
             
-            
-            
-            # Create the event (this would call your calendar service)
-            # event = self.calendar_service.create_event(event_data)
             event_result = self.calendar_service.create_event(
                 title=extracted_info["title"],
                 start_time=start_time,
@@ -285,30 +281,41 @@ class CalendarBookingAgent:
             )
 
             if event_result.get("success"):
-            
                 response = f"✅ Meeting booked successfully!\n\n"
                 response += f"📅 **{extracted_info['title']}**\n"
                 response += f"🗓️ {start_time.strftime('%A, %B %d, %Y')}\n"
                 response += f"🕐 {start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')}\n"
-            
-            if extracted_info["attendees"]:
-                response += f"👥 Attendees: {', '.join(extracted_info['attendees'])}\n"
-            
-            return {
-                "response": response,
-                "booking_confirmed": True,
-                "available_slots": [],
-                "session_id": session.get("step", "")
-            }
-            
+
+                if extracted_info["attendees"]:
+                    response += f"👥 Attendees: {', '.join(extracted_info['attendees'])}\n"
+
+                if event_result.get("event_link"):
+                    response += f"[🔗 View Event]({event_result['event_link']})\n"
+
+                return {
+                    "response": response,
+                    "booking_confirmed": True,
+                    "available_slots": [],
+                    "session_id": session.get("step", "")
+                }
+
+            else:
+                return {
+                    "response": f"❌ I couldn't book the meeting. Reason: {event_result.get('error', 'Unknown error')}",
+                    "booking_confirmed": False,
+                    "available_slots": self._get_suggested_slots(),
+                    "session_id": session.get("step", "")
+                }
+
         except Exception as e:
             logger.error(f"Booking error: {str(e)}")
             return {
-                "response": f"I encountered an issue booking your meeting. Let me suggest some alternative times.",
+                "response": "❌ An unexpected error occurred while booking. Please try again later.",
                 "booking_confirmed": False,
                 "available_slots": self._get_suggested_slots(),
                 "session_id": session.get("step", "")
             }
+
     
     def _handle_availability_check(self, message: str, session: Dict, extracted_info: Dict) -> Dict[str, Any]:
         """Handle availability check"""
