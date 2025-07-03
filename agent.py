@@ -221,6 +221,7 @@ class CalendarBookingAgent:
                 description="Booked via Calendar Assistant",
                 attendee_emails=extracted_info["attendees"]
             )
+            print("Event Result:", event_result)
 
             if event_result.get("success"):
                 response = f"✅ Meeting booked successfully!\n\n"
