@@ -201,7 +201,9 @@ class CalendarBookingAgent:
         session["pending_booking"].update(extracted_info)
         
         # Check if we have all required information
-        if not extracted_info["datetime"]:
+        if not extracted_info["datetime"]: 
+            print("❌ Missing datetime extraction. Skipping booking.") 
+                   
             return {
                 "response": "I'd be happy to book that meeting! Could you please specify the date and time? For example: 'tomorrow at 2 PM' or 'Friday at 10:30 AM'",
                 "booking_confirmed": False,
@@ -213,7 +215,9 @@ class CalendarBookingAgent:
             # Check availability
             start_time = extracted_info["datetime"]
             end_time = start_time + timedelta(minutes=extracted_info["duration"])
-            
+            print("📌 Reached booking handler")
+            print("📌 extracted_info:", extracted_info)
+
             event_result = self.calendar_service.create_event(
                 title=extracted_info["title"],
                 start_time=start_time,
