@@ -272,19 +272,7 @@ class CalendarBookingAgent:
             start_time = extracted_info["datetime"]
             end_time = start_time + timedelta(minutes=extracted_info["duration"])
             
-            # Try to book the meeting
-            event_data = {
-                'summary': extracted_info["title"],
-                'start': {
-                    'dateTime': start_time.isoformat(),
-                    'timeZone': 'UTC',
-                },
-                'end': {
-                    'dateTime': end_time.isoformat(),
-                    'timeZone': 'UTC',
-                },
-                'attendees': [{'email': email} for email in extracted_info["attendees"]]
-            }
+            
             
             # Create the event (this would call your calendar service)
             # event = self.calendar_service.create_event(event_data)
