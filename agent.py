@@ -288,11 +288,20 @@ class CalendarBookingAgent:
             
             # Create the event (this would call your calendar service)
             # event = self.calendar_service.create_event(event_data)
+            event_result = self.calendar_service.create_event(
+                title=extracted_info["title"],
+                start_time=start_time,
+                end_time=end_time,
+                description="Booked via Calendar Assistant",
+                attendee_emails=extracted_info["attendees"]
+            )
+
+            if event_result.get("success"):
             
-            response = f"✅ Meeting booked successfully!\n\n"
-            response += f"📅 **{extracted_info['title']}**\n"
-            response += f"🗓️ {start_time.strftime('%A, %B %d, %Y')}\n"
-            response += f"🕐 {start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')}\n"
+                response = f"✅ Meeting booked successfully!\n\n"
+                response += f"📅 **{extracted_info['title']}**\n"
+                response += f"🗓️ {start_time.strftime('%A, %B %d, %Y')}\n"
+                response += f"🕐 {start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')}\n"
             
             if extracted_info["attendees"]:
                 response += f"👥 Attendees: {', '.join(extracted_info['attendees'])}\n"
